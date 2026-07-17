@@ -1,16 +1,5 @@
 {
   "version": 2,
   "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "client/dist",
-  "functions": {
-    "server/server.js": {
-      "runtime": "@vercel/node@3"
-    }
-  },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/server/server.js"
-    }
-  ]
+  "outputDirectory": "client/dist"
 }
