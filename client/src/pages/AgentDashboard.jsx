@@ -284,7 +284,7 @@ const AgentDashboard = () => {
                        )}
 
                       <Link
-                        to={`/complaints/${ticket._id}`}
+                        to={`/complaint/${ticket._id}`}
                         className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl text-[10.5px] font-bold transition-all"
                       >
                         Details <ChevronRight size={12} />

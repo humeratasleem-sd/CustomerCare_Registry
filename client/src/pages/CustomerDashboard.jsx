@@ -297,7 +297,7 @@ const CustomerDashboard = () => {
                       )}
                       
                       <Link
-                        to={`/complaints/${ticket._id}`}
+                        to={`/complaint/${ticket._id}`}
                         className="inline-flex items-center gap-0.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-120 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-bold transition-all"
                       >
                         Inspect <ChevronRight size={12} />

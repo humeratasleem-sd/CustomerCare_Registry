@@ -210,6 +210,13 @@ const complaintSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Add Internal Notes case (must come before addMatcher!)
+      .addCase(postInternalNote.fulfilled, (state, action) => {
+        if (state.selectedComplaint) {
+          state.selectedComplaint.internalNotes = action.payload;
+        }
+      })
+
       // Update / Status transition mergers
       .addMatcher(
         (action) => [
@@ -255,14 +262,7 @@ const complaintSlice = createSlice({
           state.isLoading = false;
           state.error = action.payload;
         }
-      )
-
-      // Add Internal Notes case
-      .addCase(postInternalNote.fulfilled, (state, action) => {
-        if (state.selectedComplaint) {
-          state.selectedComplaint.internalNotes = action.payload;
-        }
-      });
+      );
   }
 });
 

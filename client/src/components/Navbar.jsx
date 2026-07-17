@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Bell, Sun, Moon, LogOut, ChevronDown, Check, User as UserIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { logoutUser } from '../redux/slices/authSlice';
-import { API_URL } from '../constants';
+import { API_URL, SOCKET_URL } from '../constants';
 import { useSocket } from '../context/SocketContext';
 
 const Navbar = ({ onToggleSidebar }) => {

@@ -14,10 +14,10 @@ connectDB();
 const server = http.createServer(app);
 
 // Mount Socket.IO to HTTP server
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
 const io = new Server(server, {
   cors: {
-    origin: clientUrl,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
