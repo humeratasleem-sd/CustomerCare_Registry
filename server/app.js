@@ -42,10 +42,6 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve static files from client/dist in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-}
 const authRoutes = require('./routes/authRoutes');
 const complaintRoutes = require('./routes/complaintRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -54,7 +50,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
-// Mount routes mapping
+// Mount API routes only
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/admin', adminRoutes);
@@ -63,14 +59,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-// Serve React index.html for any non-API routes in production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
-
-// Fallback Route Handler (404 for development)
+// Fallback Route Handler for non-API requests
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
