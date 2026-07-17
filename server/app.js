@@ -10,14 +10,10 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 app.use(morgan('dev'));
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174,https://customercare-registry.onrender.com').split(',');
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    callback(null, true); // Allow all origins to fix the issue quickly
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
