@@ -51,6 +51,11 @@ app.use('/api/', apiLimiter);
 // Serve uploads folder static assets
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve static files from client/dist in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+}
+
 // Routes files import
 const authRoutes = require('./routes/authRoutes');
 const complaintRoutes = require('./routes/complaintRoutes');
@@ -69,13 +74,20 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-// Fallback Route Handler (404)
-app.use((req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: 'Requested API endpoint does not exist.'
+// Serve React index.html for any non-API routes in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
-});
+} else {
+  // Fallback Route Handler (404 for development)
+  app.use((req, res, next) => {
+    res.status(404).json({
+      success: false,
+      message: 'Requested API endpoint does not exist.'
+    });
+  });
+}
 
 // Centralized error boundary
 app.use(errorHandler);

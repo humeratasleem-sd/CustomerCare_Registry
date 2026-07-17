@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: customer-care-registry
+    env: node
+    plan: free
+    buildCommand: npm install && cd client && npm install && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: customer-care-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: customer-care-registry
+          property: host
+      - key: DEFAULT_ADMIN_EMAIL
+        value: admin@customercare.com
+      - key: DEFAULT_ADMIN_PASSWORD
+        value: Admin@123
+
+databases:
+  - name: customer-care-db
+    databaseName: customercare
+    user: admin
+    plan: free
