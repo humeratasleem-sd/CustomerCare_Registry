@@ -14,10 +14,15 @@ connectDB();
 const server = http.createServer(app);
 
 // Mount Socket.IO to HTTP server
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',');
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,https://customer-care-registry-silk.vercel.app').split(',');
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }

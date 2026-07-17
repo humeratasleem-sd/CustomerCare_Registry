@@ -17,10 +17,7 @@ services:
       - key: JWT_EXPIRE
         value: 7d
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: customer-care-registry
-          property: host
+        value: https://customer-care-registry-silk.vercel.app
       - key: DEFAULT_ADMIN_EMAIL
         value: admin@customercare.com
       - key: DEFAULT_ADMIN_PASSWORD
