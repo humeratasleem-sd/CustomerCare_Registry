@@ -568,7 +568,7 @@ exports.resolveComplaint = async (req, res) => {
 
     // Send email to Customer
     const customerUser = await User.findById(complaint.customer);
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || 'https://customer-care-registry-silk.vercel.app';
     const feedbackUrl = `${clientUrl}/complaints/${complaint._id}`;
 
     await sendEmail({

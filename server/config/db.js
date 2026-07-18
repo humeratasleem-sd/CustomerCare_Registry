@@ -2,8 +2,17 @@ const mongoose = require('mongoose');
 const { ROLES } = require('../constants');
 
 const connectDB = async () => {
+  if (!process.env.MONGODB_URI) {
+    console.error('Missing MONGODB_URI. Set it in the environment for production deployment.');
+    process.exit(1);
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 15000,
+      autoIndex: true,
+      maxPoolSize: 10
+    });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Seed default admin, categories, and settings
@@ -42,68 +51,91 @@ const seedDatabase = async () => {
       console.log('Seeded default Complaint Categories.');
     }
 
-    // 3. Seed Default Admin (reset if exists)
+    // 3. Seed Default Admin (create if missing, update if present)
     const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@customercare.com';
     const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
-    // Delete any existing admin user with this email
-    await User.deleteOne({ email: adminEmail });
-    const adminUser = await User.create({
-      name: 'System Admin',
-      email: adminEmail,
-      password: adminPassword, // Will be hashed via pre-save hook
-      role: ROLES.ADMIN,
-      isVerified: true
-    });
-    console.log(`Reset default Admin user: ${adminEmail}`);
+    let adminUser = await User.findOne({ email: adminEmail });
 
-    // 4. Seed Default Agent (reset if exists)
+    if (!adminUser) {
+      adminUser = await User.create({
+        name: 'System Admin',
+        email: adminEmail,
+        password: adminPassword,
+        role: ROLES.ADMIN,
+        isVerified: true
+      });
+    } else {
+      adminUser.name = 'System Admin';
+      adminUser.role = ROLES.ADMIN;
+      adminUser.isVerified = true;
+      adminUser.password = adminPassword;
+      await adminUser.save();
+    }
+    console.log(`Ensured default Admin user: ${adminEmail}`);
+
+    // 4. Seed Default Agent (create if missing, update if present)
     const agentEmail = 'agent@customercare.com';
-    // Delete any existing agent user and agent profile
-    const existingAgentUser = await User.findOne({ email: agentEmail });
-    if (existingAgentUser) {
-      await Agent.deleteOne({ user: existingAgentUser._id });
-      await User.deleteOne({ email: agentEmail });
-    }
-    const agentUser = await User.create({
-      name: 'John Agent',
-      email: agentEmail,
-      password: 'Agent@123',
-      role: ROLES.AGENT,
-      isVerified: true
-    });
-    // Find category to assign
-    const techCategory = await ComplaintCategory.findOne({ name: 'Technical Support' });
-    await Agent.create({
-      user: agentUser._id,
-      department: 'Support & Engineering',
-      assignedCategories: techCategory ? [techCategory._id] : [],
-      availability: true
-    });
-    console.log(`Reset default Agent user: ${agentEmail}`);
+    let agentUser = await User.findOne({ email: agentEmail });
 
-    // 5. Seed Default Customer (reset if exists)
-    const customerEmail = 'customer@customercare.com';
-    // Delete any existing customer user and customer profile
-    const existingCustomerUser = await User.findOne({ email: customerEmail });
-    if (existingCustomerUser) {
-      await Customer.deleteOne({ user: existingCustomerUser._id });
-      await User.deleteOne({ email: customerEmail });
+    if (!agentUser) {
+      agentUser = await User.create({
+        name: 'John Agent',
+        email: agentEmail,
+        password: 'Agent@123',
+        role: ROLES.AGENT,
+        isVerified: true
+      });
+    } else {
+      agentUser.name = 'John Agent';
+      agentUser.role = ROLES.AGENT;
+      agentUser.isVerified = true;
+      agentUser.password = 'Agent@123';
+      await agentUser.save();
     }
-    const customerUser = await User.create({
-      name: 'Jane Customer',
-      email: customerEmail,
-      password: 'Customer@123',
-      role: ROLES.CUSTOMER,
-      isVerified: true
-    });
-    await Customer.create({
-      user: customerUser._id,
-      phone: '123-456-7890',
-      address: '123 Main St, Anytown, USA',
-      companyName: 'Acme Corp',
-      customerTier: 'Gold'
-    });
-    console.log(`Reset default Customer user: ${customerEmail}`);
+
+    const techCategory = await ComplaintCategory.findOne({ name: 'Technical Support' });
+    const existingAgentProfile = await Agent.findOne({ user: agentUser._id });
+    if (!existingAgentProfile) {
+      await Agent.create({
+        user: agentUser._id,
+        department: 'Support & Engineering',
+        assignedCategories: techCategory ? [techCategory._id] : [],
+        availability: true
+      });
+    }
+    console.log(`Ensured default Agent user: ${agentEmail}`);
+
+    // 5. Seed Default Customer (create if missing, update if present)
+    const customerEmail = 'customer@customercare.com';
+    let customerUser = await User.findOne({ email: customerEmail });
+
+    if (!customerUser) {
+      customerUser = await User.create({
+        name: 'Jane Customer',
+        email: customerEmail,
+        password: 'Customer@123',
+        role: ROLES.CUSTOMER,
+        isVerified: true
+      });
+    } else {
+      customerUser.name = 'Jane Customer';
+      customerUser.role = ROLES.CUSTOMER;
+      customerUser.isVerified = true;
+      customerUser.password = 'Customer@123';
+      await customerUser.save();
+    }
+
+    const existingCustomerProfile = await Customer.findOne({ user: customerUser._id });
+    if (!existingCustomerProfile) {
+      await Customer.create({
+        user: customerUser._id,
+        phone: '123-456-7890',
+        address: '123 Main St, Anytown, USA',
+        companyName: 'Acme Corp',
+        customerTier: 'Gold'
+      });
+    }
+    console.log(`Ensured default Customer user: ${customerEmail}`);
   } catch (error) {
     console.error(`Seeding database failed: ${error.message}`);
   }

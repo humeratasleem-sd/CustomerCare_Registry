@@ -10,10 +10,27 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 app.use(morgan('dev'));
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174,https://customer-care-registry-silk.vercel.app').split(',');
+const configuredOrigins = [
+  process.env.CLIENT_URL,
+  'https://customer-care-registry-silk.vercel.app',
+  'https://customer-care-registry.onrender.com'
+].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname.endsWith('.vercel.app') || hostname.endsWith('.onrender.com');
+  } catch {
+    return false;
+  }
+};
+
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));
@@ -58,6 +75,14 @@ app.use('/api/support', supportRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Fallback Route Handler for non-API requests
 app.use((req, res, next) => {

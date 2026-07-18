@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
     });
 
     // Send verification email
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || 'https://customer-care-registry-silk.vercel.app';
     const verifyUrl = `${clientUrl}/verify-email/${verificationToken}`;
     
     const emailHtml = `
@@ -176,7 +176,7 @@ exports.forgotPassword = async (req, res) => {
     await user.save();
 
     // Reset Link
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || 'https://customer-care-registry-silk.vercel.app';
     const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
     const emailHtml = `

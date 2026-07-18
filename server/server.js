@@ -14,11 +14,28 @@ connectDB();
 const server = http.createServer(app);
 
 // Mount Socket.IO to HTTP server
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,https://customer-care-registry-silk.vercel.app').split(',');
+const configuredOrigins = [
+  process.env.CLIENT_URL,
+  'https://customer-care-registry-silk.vercel.app',
+  'https://customer-care-registry.onrender.com'
+].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (configuredOrigins.includes(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname.endsWith('.vercel.app') || hostname.endsWith('.onrender.com');
+  } catch {
+    return false;
+  }
+};
+
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
       callback(new Error('Not allowed by CORS'));
