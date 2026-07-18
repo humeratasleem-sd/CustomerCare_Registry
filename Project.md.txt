@@ -1,0 +1,28 @@
+Customer Care Registry System is a full-stack MERN web application designed to streamline the process of managing customer support and complaint resolution. The system provides secure role-based access for Customers, Agents, and Administrators. Customers can register, log in, submit complaints, track their status, receive real-time notifications, and provide feedback after resolution. Agents can manage assigned complaints, communicate with customers, update complaint statuses, and resolve issues efficiently. Administrators have complete control over the platform, including managing users, agents, complaint categories, system settings, and monitoring overall analytics through an interactive dashboard. Built using React, Vite, Tailwind CSS, Redux Toolkit, Node.js, Express.js, MongoDB Atlas, JWT Authentication, and Socket.IO, the application delivers a secure, responsive, and scalable customer support solution suitable for enterprise environments.
+
+
+
+
+## Default Admin & Agent Accounts
+
+For security reasons, **Admin** and **Agent** accounts cannot be created through the registration page.
+
+These privileged accounts are **automatically seeded into the MongoDB database** when the backend server starts for the first time (if they do not already exist).
+
+Only **Customers** are allowed to register through the application.
+
+### Default Demo Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | admin@customercare.com | Admin@123 |
+| **Agent** | agent@customercare.com | Agent@123 |
+| **Customer** | customer@customercare.com | Customer@123 |
+
+### Registration Policy
+
+- ✅ Customer → Can register using the Sign Up page.
+- ❌ Agent → Cannot self-register. Created automatically by the system.
+- ❌ Admin → Cannot self-register. Created automatically by the system.
+
+This approach ensures that only authorized users can access administrative and agent functionalities while maintaining the security and integrity of the Customer Care Registry System.
